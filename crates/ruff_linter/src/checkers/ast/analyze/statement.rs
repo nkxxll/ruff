@@ -380,6 +380,9 @@ pub(crate) fn statement(stmt: &Stmt, checker: &mut Checker) {
                 range: _,
             },
         ) => {
+            if checker.enabled(Rule::BadSuperCall) {
+                pylint::rules::bad_super_call(checker, class_def);
+            }
             if checker.enabled(Rule::NoClassmethodDecorator) {
                 pylint::rules::no_classmethod_decorator(checker, class_def);
             }
