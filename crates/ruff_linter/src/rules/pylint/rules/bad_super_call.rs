@@ -1,4 +1,4 @@
-use ast::Arguments;
+use ast::{Arguments, ExprName, StmtExpr};
 use ruff_diagnostics::{Diagnostic, Violation};
 use ruff_macros::{derive_message_formats, violation};
 
@@ -25,47 +25,39 @@ pub(crate) fn bad_super_call(
 ) {
     let bad_super = get_bad_super(arguments, body);
     match bad_super {
-        Some(bs) => {
+        Some(bs_range) => {
             checker
                 .diagnostics
-                .push(Diagnostic::new(BadSuperCall, bs.range()));
+                .push(Diagnostic::new(BadSuperCall, bs_range));
         }
         None => {}
     }
 }
 
-fn get_bad_super(arguments: &Option<Box<Arguments>>, body: &[Stmt]) -> Option<ast::Stmt> {
+fn get_bad_super(arguments: &Option<Box<Arguments>>, body: &[Stmt]) -> Option<TextRange> {
     // if args then save the args for later
     let cl_args: ast::Arguments;
     match arguments {
         Some(args) => {
-            cl_args = args;
+            cl_args = **args;
         }
         None => {}
     }
-    let res: Option<TextRange>;
-    let methods = get_methods(body);
-    for method in methods {
+    let mut res: Option<TextRange>;
+    // get the methods body from the class body
+    let methods_body = get_methods(body);
+    for method in methods_body {
+        // get statements where the super function is called
         let super_call = get_super_call(method);
         match super_call {
             Some(sc) => {
                 let args = sc.arguments;
-                match args {
-                    Some(args) => {
-                        res = get_bad_super_call_range(args, cl_args);
-                        match res {
-                            Some(r) => {
-                                return Some(sc);
-                            }
-                            None => {}
-                        }
-                    }
-                    None => {}
-                }
+                get_bad_super_call_range(args, cl_args);
             }
-            None => {}
+            None => (),
         }
     }
+    None
 }
 
 fn get_methods(body: &[Stmt]) -> Vec<Vec<Stmt>> {
@@ -73,7 +65,7 @@ fn get_methods(body: &[Stmt]) -> Vec<Vec<Stmt>> {
     for statement in body {
         match statement {
             Stmt::FunctionDef(ast::StmtFunctionDef { body, .. }) => {
-                res.push(body);
+                res.push(body.to_vec());
             }
             _ => {}
         }
@@ -81,17 +73,15 @@ fn get_methods(body: &[Stmt]) -> Vec<Vec<Stmt>> {
     res
 }
 
-fn get_super_call(init: ast::StmtFunctionDef) -> Option<ast::ExprCall> {
-    for statement in init.body {
+fn get_super_call(methods: Vec<Stmt>) -> Option<ast::ExprCall> {
+    for statement in methods {
         match statement {
-            Stmt::Expr(ast::ExprCall {
-                range,
-                func,
-                arguments,
-                ..
-            }) => {
-                if func.name_expr() == "super" {
-                    return Some(statement);
+            // I don't know which type should go here
+            StmtExpr(call) => {
+                if let Some(name) = call.func.name_expr() {
+                    if name.id == "super" {
+                        return Some(call);
+                    }
                 }
             }
             _ => {}
@@ -116,7 +106,7 @@ fn get_bad_super_call_range(
     let super_args = super_args.args.iter().peekable();
     let class_args = class_args.args.iter().peekable();
     // if the super call has no arguments the super call is not bad
-    while (super_args.peek().is_some()) {
+    while super_args.peek().is_some() {
         let super_arg = super_args.next().unwrap();
         // you can have a bad super call if the super call has more arguments than the class
         let class_arg = class_args.next();
