@@ -247,6 +247,11 @@ pub(crate) fn statement(stmt: &Stmt, checker: &mut Checker) {
             if checker.enabled(Rule::HardcodedPasswordDefault) {
                 flake8_bandit::rules::hardcoded_password_default(checker, parameters);
             }
+            if checker.enabled(Rule::SuspiciousMarkSafeUsage) {
+                for decorator in decorator_list {
+                    flake8_bandit::rules::suspicious_function_decorator(checker, decorator);
+                }
+            }
             if checker.enabled(Rule::PropertyWithParameters) {
                 pylint::rules::property_with_parameters(checker, stmt, decorator_list, parameters);
             }
@@ -384,10 +389,10 @@ pub(crate) fn statement(stmt: &Stmt, checker: &mut Checker) {
                 pylint::rules::bad_super_call(checker, class_def);
             }
             if checker.enabled(Rule::NoClassmethodDecorator) {
-                pylint::rules::no_classmethod_decorator(checker, class_def);
+                pylint::rules::no_classmethod_decorator(checker, stmt);
             }
             if checker.enabled(Rule::NoStaticmethodDecorator) {
-                pylint::rules::no_staticmethod_decorator(checker, class_def);
+                pylint::rules::no_staticmethod_decorator(checker, stmt);
             }
             if checker.enabled(Rule::DjangoNullableModelStringField) {
                 flake8_django::rules::nullable_model_string_field(checker, body);
@@ -1297,6 +1302,9 @@ pub(crate) fn statement(stmt: &Stmt, checker: &mut Checker) {
             if checker.enabled(Rule::IterationOverSet) {
                 pylint::rules::iteration_over_set(checker, iter);
             }
+            if checker.enabled(Rule::DictIterMissingItems) {
+                pylint::rules::dict_iter_missing_items(checker, target, iter);
+            }
             if checker.enabled(Rule::ManualListComprehension) {
                 perflint::rules::manual_list_comprehension(checker, target, body);
             }
@@ -1314,6 +1322,9 @@ pub(crate) fn statement(stmt: &Stmt, checker: &mut Checker) {
             }
             if checker.enabled(Rule::UnnecessaryDictIndexLookup) {
                 pylint::rules::unnecessary_dict_index_lookup(checker, for_stmt);
+            }
+            if checker.enabled(Rule::ReadlinesInFor) {
+                refurb::rules::readlines_in_for(checker, for_stmt);
             }
             if !is_async {
                 if checker.enabled(Rule::ReimplementedBuiltin) {

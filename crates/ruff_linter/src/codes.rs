@@ -137,6 +137,12 @@ pub fn code_to_rule(linter: Linter, code: &str) -> Option<(RuleGroup, Rule)> {
         (Pycodestyle, "E274") => (RuleGroup::Nursery, rules::pycodestyle::rules::logical_lines::TabBeforeKeyword),
         #[allow(deprecated)]
         (Pycodestyle, "E275") => (RuleGroup::Nursery, rules::pycodestyle::rules::logical_lines::MissingWhitespaceAfterKeyword),
+        (Pycodestyle, "E301") => (RuleGroup::Preview, rules::pycodestyle::rules::BlankLineBetweenMethods),
+        (Pycodestyle, "E302") => (RuleGroup::Preview, rules::pycodestyle::rules::BlankLinesTopLevel),
+        (Pycodestyle, "E303") => (RuleGroup::Preview, rules::pycodestyle::rules::TooManyBlankLines),
+        (Pycodestyle, "E304") => (RuleGroup::Preview, rules::pycodestyle::rules::BlankLineAfterDecorator),
+        (Pycodestyle, "E305") => (RuleGroup::Preview, rules::pycodestyle::rules::BlankLinesAfterFunctionOrClass),
+        (Pycodestyle, "E306") => (RuleGroup::Preview, rules::pycodestyle::rules::BlankLinesBeforeNestedDefinition),
         (Pycodestyle, "E401") => (RuleGroup::Stable, rules::pycodestyle::rules::MultipleImportsOnOneLine),
         (Pycodestyle, "E402") => (RuleGroup::Stable, rules::pycodestyle::rules::ModuleImportNotAtTopOfFile),
         (Pycodestyle, "E501") => (RuleGroup::Stable, rules::pycodestyle::rules::LineTooLong),
@@ -239,6 +245,7 @@ pub fn code_to_rule(linter: Linter, code: &str) -> Option<(RuleGroup, Rule)> {
         (Pylint, "E0704") => (RuleGroup::Preview, rules::pylint::rules::MisplacedBareRaise),
         (Pylint, "E1003") => (RuleGroup::Preview, rules::pylint::rules::BadSuperCall),
         (Pylint, "E1132") => (RuleGroup::Preview, rules::pylint::rules::RepeatedKeywordArgument),
+        (Pylint, "E1141") => (RuleGroup::Preview, rules::pylint::rules::DictIterMissingItems),
         (Pylint, "E1142") => (RuleGroup::Stable, rules::pylint::rules::AwaitOutsideAsync),
         (Pylint, "E1205") => (RuleGroup::Stable, rules::pylint::rules::LoggingTooManyArgs),
         (Pylint, "E1206") => (RuleGroup::Stable, rules::pylint::rules::LoggingTooFewArgs),
@@ -1020,6 +1027,7 @@ pub fn code_to_rule(linter: Linter, code: &str) -> Option<(RuleGroup, Rule)> {
         #[allow(deprecated)]
         (Refurb, "113") => (RuleGroup::Nursery, rules::refurb::rules::RepeatedAppend),
         (Refurb, "118") => (RuleGroup::Preview, rules::refurb::rules::ReimplementedOperator),
+        (Refurb, "129") => (RuleGroup::Preview, rules::refurb::rules::ReadlinesInFor),
         #[allow(deprecated)]
         (Refurb, "131") => (RuleGroup::Nursery, rules::refurb::rules::DeleteFullSlice),
         #[allow(deprecated)]
