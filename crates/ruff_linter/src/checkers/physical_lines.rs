@@ -30,6 +30,7 @@ pub(crate) fn check_physical_lines(
     let enforce_mixed_spaces_and_tabs = settings.rules.enabled(Rule::MixedSpacesAndTabs);
     let enforce_bidirectional_unicode = settings.rules.enabled(Rule::BidirectionalUnicode);
     let enforce_trailing_whitespace = settings.rules.enabled(Rule::TrailingWhitespace);
+    let enforce_utf8_encoding = settings.rules.enabled(Rule::BadFileEncoding);
     let enforce_blank_line_contains_whitespace =
         settings.rules.enabled(Rule::BlankLineWithWhitespace);
     let enforce_copyright_notice = settings.rules.enabled(Rule::MissingCopyrightNotice);
@@ -79,6 +80,12 @@ pub(crate) fn check_physical_lines(
 
     if enforce_copyright_notice {
         if let Some(diagnostic) = missing_copyright_notice(locator, settings) {
+            diagnostics.push(diagnostic);
+        }
+    }
+
+    if enforce_utf8_encoding {
+        if let Some(diagnostic) = pylint::rules::bad_file_encoding(locator, settings) {
             diagnostics.push(diagnostic);
         }
     }
