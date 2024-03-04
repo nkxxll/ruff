@@ -34,25 +34,25 @@ impl Violation for BadFileEncoding {
     }
 }
 
-pub(crate) fn bad_file_encoding(
-    locator: &Locator,
-    settings: &LinterSettings,
-) -> Option<Diagnostic> {
+pub(crate) fn bad_file_encoding(locator: &Locator) -> Option<Diagnostic> {
     // Only search the first 2 lines rest is not relevant
     let contents = locator.up_to(locator.floor_char_boundary(TextSize::new(2)));
 
     if IS_ENCODING.is_match(contents) && !IS_UTF8_ENCODING.is_match(contents) {
         return Some(Diagnostic::new(BadFileEncoding, TextRange::default()));
     }
-    let try_second = contents.split_once('\n');
-    match try_second {
-        Some((_, second)) => {
-            if IS_ENCODING.is_match(second) && !IS_UTF8_ENCODING.is_match(second) {
-                return Some(Diagnostic::new(BadFileEncoding, TextRange::default()));
+    // try out if there is an encoding in the second line
+    if contents.starts_with("#!") {
+        let try_second = contents.split_once('\n');
+        match try_second {
+            Some((_, second)) => {
+                if IS_ENCODING.is_match(second) && !IS_UTF8_ENCODING.is_match(second) {
+                    return Some(Diagnostic::new(BadFileEncoding, TextRange::default()));
+                }
             }
-        }
-        None => {
-            return None;
+            None => {
+                return None;
+            }
         }
     }
     None

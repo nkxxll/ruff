@@ -85,7 +85,7 @@ pub(crate) fn check_physical_lines(
     }
 
     if enforce_utf8_encoding {
-        if let Some(diagnostic) = pylint::rules::bad_file_encoding(locator, settings) {
+        if let Some(diagnostic) = pylint::rules::bad_file_encoding(locator) {
             diagnostics.push(diagnostic);
         }
     }
