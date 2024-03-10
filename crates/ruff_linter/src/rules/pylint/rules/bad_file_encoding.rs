@@ -58,9 +58,23 @@ pub(crate) fn bad_file_encoding(locator: &Locator) -> Option<Diagnostic> {
     None
 }
 
-/// returns the file encoding if there is one else None
-///
-/// * `contents`: the first two lines of the file
-fn is_eq_encoding(contents: &str) -> Option<String> {
-    None
+#[cfg(test)]
+mod tests {
+    use crate::registry::Rule;
+    use crate::test::test_snippet;
+    use crate::{assert_messages, settings};
+
+    #[test]
+    fn utf8_file_encoding() {
+        let diagnostics = test_snippet(
+            r"
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+import os, sys
+"
+            .trim(),
+            &settings::LinterSettings::for_rules(vec![Rule::BadFileEncoding]),
+        );
+        assert_messages!(diagnostics);
+    }
 }
