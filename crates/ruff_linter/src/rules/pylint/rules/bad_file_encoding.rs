@@ -5,8 +5,6 @@ use ruff_macros::{derive_message_formats, violation};
 use ruff_source_file::Locator;
 use ruff_text_size::{TextRange, TextSize};
 
-use crate::settings::LinterSettings;
-
 // see https://peps.python.org/pep-0263/
 // utf-8 aliases: utf8, U8, UTF, cp65001 case and _- can be used interchangebly
 // just added utf-8 to it
@@ -70,6 +68,20 @@ mod tests {
             r"
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+import os, sys
+"
+            .trim(),
+            &settings::LinterSettings::for_rules(vec![Rule::BadFileEncoding]),
+        );
+        assert_messages!(diagnostics);
+    }
+
+    #[test]
+    fn latin1_file_encoding() {
+        let diagnostics = test_snippet(
+            r"
+#!/usr/bin/python
+# -*- coding: latin-1 -*-
 import os, sys
 "
             .trim(),
