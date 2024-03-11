@@ -8,9 +8,8 @@ use ruff_text_size::{TextRange, TextSize};
 // see https://peps.python.org/pep-0263/
 // utf-8 aliases: utf8, U8, UTF, cp65001 case and _- can be used interchangebly
 // just added utf-8 to it
-static IS_ENCODING: Lazy<Regex> = Lazy::new(|| {
-    Regex::new(r"(^[ \t\f]*#.*?coding[:=][ \t]*((?i)u8|utf(_8|-8)?|cp65001)($| ).*)").unwrap()
-});
+static IS_ENCODING: Lazy<Regex> =
+    Lazy::new(|| Regex::new(r"^[ \t\f]*#.*?coding[:=][ \t]*([-_.a-zA-Z0-9]+)").unwrap());
 static IS_UTF8_ENCODING: Lazy<Regex> = Lazy::new(|| {
     Regex::new(r"(^[ \t\f]*#.*?coding[:=][ \t]*((?i)u8|utf(_8|-8)?|cp65001)($| ).*)").unwrap()
 });
